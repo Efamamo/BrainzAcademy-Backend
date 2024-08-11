@@ -21,3 +21,7 @@ export async function AddUser(username, password) {
     return [null, errors];
   }
 }
+
+export async function FindUser(username){
+    
+}

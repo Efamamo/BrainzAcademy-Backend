@@ -1,5 +1,5 @@
+import { handleUserErrors } from "../domain/errors.mjs";
 import User from "../domain/user.mjs";
-import hashPassword from "../infrastructure/password_service.mjs";
 import { AddUser } from "../infrastructure/repository/user_repository.mjs";
 
 export async function signUp(username, password) {
@@ -10,3 +10,18 @@ export async function signUp(username, password) {
   }
   return [savedUser, null];
 }
+
+export async function logIn(username, password) {
+    if (username == ""){
+        return [null, {"username": "username is required"} ]
+    }
+
+    
+        const [user, err] = await User.login(username, password)
+        
+        if (err != null){
+            return [null, err]
+        }
+        return [user, null]
+    
+  }
