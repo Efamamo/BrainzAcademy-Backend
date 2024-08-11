@@ -1,0 +1,27 @@
+{
+  "name": "brainzacademy-backend",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u0000B\u0000r\u0000a\u0000i\u0000n\u0000z\u0000A\u0000c\u0000a\u0000d\u0000e\u0000m\u0000y\u0000-\u0000b\u0000a\u0000c\u0000k\u0000e\u0000n\u0000d\u0000\r\u0000 \u0000",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon server.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Roman0290/BrainzAcademy-backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Roman0290/BrainzAcademy-backend/issues"
+  },
+  "type": "module",
+  "homepage": "https://github.com/Roman0290/BrainzAcademy-backend#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "express": "^4.19.2",
+    "mongoose": "^8.5.2",
+    "nodemon": "^3.1.4"
+  }
+}
