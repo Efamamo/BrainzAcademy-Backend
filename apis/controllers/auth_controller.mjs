@@ -1,10 +1,11 @@
 import { signUp } from "../../usecases/auth_usecase.mjs";
-export function signup(req, res) {
+export async function signup(req, res) {
     const {username, password} = req.body;
-    if (signUp(username, password) != null){
-        return res.status(201).send()
+    const [savedUser, errors] = await signUp(username, password)
+    if (errors != null){
+        return res.status(400).json(errors)
     }
-    return res.send(500)
+    return res.status(201).json(savedUser)
 
 }
 
