@@ -6,6 +6,6 @@ export const app = express()
 app.use(express.json())
 
 
-
+app.post("/signup", signup)
 app.post("/login", login)
 app.listen(3000)

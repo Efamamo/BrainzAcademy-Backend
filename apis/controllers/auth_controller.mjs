@@ -11,11 +11,10 @@ export async function signup(req, res) {
 export async function login(req, res) {
     
     const {username, password} = req.body;
-
-    const [savedUser, errors] = await logIn(username, password)
+    const [token, errors] = await logIn(username, password)
     if (errors != null){
         return res.status(400).json(errors)
     }
-    return res.status(201).json(savedUser)
+    return res.status(201).json({accessToken: token})
 
 }

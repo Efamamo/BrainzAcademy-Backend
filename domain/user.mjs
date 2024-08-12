@@ -21,23 +21,6 @@ UserSchema.pre("save", async function(next){
     next()
 })
 
-UserSchema.statics.login = async function (username, password){
-   
-    const user = await this.findOne({username})
-   
-
-    if (user){
-        const auth = await comparePassword(password, user.password)
-        
-        if (auth){
-            return [user, null]
-        }
-            return [null, {"password": "Incorrect Password"}]
-    }
-    return [null, {"username":"User Not Found"}]
-
-}
-
 
 const User = mongoose.model("User",UserSchema)
 export default User
