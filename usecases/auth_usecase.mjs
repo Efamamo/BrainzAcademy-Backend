@@ -22,12 +22,17 @@ export async function logIn(username, password) {
   }
   
 
-  const [user, err] = await FindUser(username, password);
+  const [user, err] = await FindUser(username);
   if (err != null){
     return [null, err]
   }
   
   if (user) {
+
+    if (!password){
+      return [null, { username: "password is required" }];
+
+    }
     
     const auth = await comparePassword(password, user.password);
     if (auth) {

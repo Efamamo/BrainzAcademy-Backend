@@ -1,9 +1,7 @@
 import { handleUserErrors } from "../../domain/errors.mjs";
 import User from "../../domain/user.mjs";
-import { comparePassword } from "../password_service.mjs";
 export async function AddUser(username, password) {
   const newUser = new User({ username, password });
-  console.log(newUser);
 
   try {
     const savedUser = await newUser.save();
@@ -14,7 +12,7 @@ export async function AddUser(username, password) {
   }
 }
 
-export async function FindUser(username, password) {
+export async function FindUser(username) {
   try {
     const user = await User.findOne({ username });
     return [user, null];

@@ -1,11 +1,20 @@
+import dotenv from "dotenv"
 import mongoose from "mongoose";
-import express from 'express'
-import { login, signup } from "./apis/controllers/auth_controller.mjs";
-mongoose.connect("mongodb://localhost:27017/brainz-academy").then(()=>{console.log("Connected")}).catch((e)=> {console.log(e)})
-export const app = express()
+import express from "express"
+import { authRouter } from "./apis/routes/auth.mjs";
+
+dotenv.config()
+
+
+mongoose.connect(process.env.DATABASE_URL)
+const db = mongoose.connection
+db.on("error", (error)=>{console.log(error)})
+db.once("open",()=>{console.log("connected")})
+
+const app = express()
+
 app.use(express.json())
 
+app.use("/auth", authRouter)
 
-app.post("/signup", signup)
-app.post("/login", login)
 app.listen(3000)
