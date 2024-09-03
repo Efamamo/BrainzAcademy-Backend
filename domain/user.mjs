@@ -1,26 +1,23 @@
-import mongoose from "mongoose";
-import hashPassword, { comparePassword } from "../infrastructure/password_service.mjs";
+import mongoose from 'mongoose';
 
 const UserSchema = mongoose.Schema({
-    username: {
-        type: mongoose.Schema.Types.String,
-        required: [true, "username is required"],
-        unique: true,
-        lowercase: true
-    },
-    password: {
-        type: mongoose.Schema.Types.String,
-        required: [true, "password is required"],
-        minlength: [8, "minimum password length is 8"]
-    }
-})
+  username: {
+    type: String,
+    required: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  verificationToken: { type: String },
+  tokenExpiration: { type: Date },
+  isVerified: Boolean,
+});
 
-
-UserSchema.pre("save", async function(next){
-    this.password = await hashPassword(this.password)
-    next()
-})
-
-
-const User = mongoose.model("User",UserSchema)
-export default User
+const User = mongoose.model('User', UserSchema);
+export default User;
