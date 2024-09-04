@@ -4,6 +4,7 @@ const UserSchema = mongoose.Schema({
   username: {
     type: String,
     required: true,
+    unique: true,
   },
   password: {
     type: String,
@@ -16,6 +17,8 @@ const UserSchema = mongoose.Schema({
   },
   verificationToken: { type: String },
   tokenExpiration: { type: Date },
+  resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date },
   isVerified: Boolean,
 });
 

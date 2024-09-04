@@ -12,6 +12,7 @@ import {
   generateRefreshToken,
   generateToken,
 } from '../../infrastructure/jwt_service.mjs';
+import sendPasswordResetLink from '../../infrastructure/email/send-reset-link.mjs';
 
 dotenv.config();
 
@@ -80,8 +81,8 @@ export async function login(req, res) {
     return res.status(400).send({ error: 'invald credentials' });
   }
 
-  const accessToken = generateToken(user.username);
-  const refreshToken = generateRefreshToken(user.username);
+  const accessToken = generateToken(user._id);
+  const refreshToken = generateRefreshToken(user._id);
   const newRefresh = new Refresh({
     token: refreshToken,
   });
@@ -103,9 +104,6 @@ export async function refresh(req, res) {
     return res.status(400).send({ errors: formatedError });
   }
   const token = req.body.token;
-  if (!token) {
-    return res.status(401).send();
-  }
   try {
     const t = await Refresh.findOne({ token });
     if (!t) {
@@ -159,7 +157,8 @@ export async function verifyToken(req, res) {
                   padding: 30px;
                   border-radius: 8px;
                   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                }
+                }"email" : "ephrem.mamo@a2sv.org",
+  "username": "efa",
                 .header {
                   text-align: center;
                   padding-bottom: 20px;
@@ -228,4 +227,141 @@ export async function logout(req, res) {
   } catch (e) {
     res.status(500).send(e);
   }
+}
+
+export async function updatedeProfile(req, res) {
+  const err = validationResult(req);
+
+  if (!err.isEmpty()) {
+    const formatedError = {};
+    err.array().forEach((e) => {
+      formatedError[e.path] = e.msg;
+    });
+
+    return res.status(400).send({ errors: formatedError });
+  }
+
+  const { username, email } = req.body;
+  
+
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).send({ error: 'user not found' });
+    }
+
+    user.email = email;
+    user.username = username;
+    await user.save();
+
+    return res.status(204).send();
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({ error: 'Server Error' });
+  }
+}
+
+export async function changePassword(req, res) {
+  const err = validationResult(req);
+
+  if (!err.isEmpty()) {
+    const formatedError = {};
+    err.array().forEach((e) => {
+      formatedError[e.path] = e.msg;
+    });
+
+    return res.status(400).send({ errors: formatedError });
+  }
+
+  const { oldPassword, newPassword } = req.body;
+
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).send({ error: 'user not found' });
+    }
+    const match = await comparePassword(oldPassword, user.password);
+
+    if (!match) {
+      return res.status(400).send({ error: 'old password is incorrect' });
+    }
+    const hashedPassword = await hashPassword(newPassword);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    return res.status(204).send();
+  } catch (e) {
+    res.status(500).send({ error: 'Server Error' });
+  }
+}
+
+export async function forgotPassword(req, res) {
+  const err = validationResult(req);
+
+  if (!err.isEmpty()) {
+    const formatedError = {};
+    err.array().forEach((e) => {
+      formatedError[e.path] = e.msg;
+    });
+
+    return res.status(400).send({ errors: formatedError });
+  }
+
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res
+        .status(404)
+        .send({ error: 'user with provided email not found' });
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = Date.now() + 3600000;
+
+    await user.save();
+
+    await sendPasswordResetLink(user);
+
+    res.send('Password reset email sent');
+  } catch (e) {
+    res.status(500).send({ error: 'Server Error' });
+  }
+}
+
+export async function resetPassword(req, res) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const formattedErrors = {};
+    errors.array().forEach((error) => {
+      formattedErrors[error.path] = error.msg;
+    });
+
+    return res.status(400).send({ errors: formattedErrors });
+  }
+  const token = req.query.token;
+  const { newPassword } = req.body;
+
+  const user = await User.findOne({
+    resetPasswordToken: token,
+    resetPasswordExpires: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    return res.status(400).send('Invalid or expired token');
+  }
+
+  // Hash the new password and save it
+  user.password = await hashPassword(newPassword)
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpires = undefined;
+
+  await user.save();
+
+  res.send('Password has been reset');
 }
