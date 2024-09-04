@@ -1,9 +1,14 @@
-import jwt from 'jsonwebtoken'
-import dotenv from 'dotenv'
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 
-dotenv.config()
+dotenv.config();
 
-const jwtSecret = process.env.JWT_SECRET
-export function generateToken(username){
-   return  jwt.sign({name:username},jwtSecret)
+export function generateToken(username) {
+  return jwt.sign({ name: username }, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: '20m',
+  });
+}
+
+export function generateRefreshToken(username) {
+  return jwt.sign({ name: username }, process.env.REFRESH_TOKEN_SECRET);
 }

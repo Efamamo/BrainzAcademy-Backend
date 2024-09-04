@@ -1,11 +1,19 @@
 import User from '../../domain/user.mjs';
+import Refresh from '../../domain/refresh.mjs';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 import hashPassword, {
   comparePassword,
 } from '../../infrastructure/password_service.mjs';
 import crypto from 'crypto';
 import sendVerification from '../../infrastructure/email/send-verification.mjs';
 import { validationResult } from 'express-validator';
-import { generateToken } from '../../infrastructure/jwt_service.mjs';
+import {
+  generateRefreshToken,
+  generateToken,
+} from '../../infrastructure/jwt_service.mjs';
+
+dotenv.config();
 
 export async function signup(req, res) {
   const err = validationResult(req);
@@ -47,6 +55,16 @@ export async function signup(req, res) {
   }
 }
 export async function login(req, res) {
+  const err = validationResult(req);
+
+  if (!err.isEmpty()) {
+    const formatedError = {};
+    err.array().forEach((e) => {
+      formatedError[e.path] = e.msg;
+    });
+
+    return res.status(400).send({ errors: formatedError });
+  }
   const { email, password } = req.body;
   const user = await User.findOne({ email });
   if (!user) {
@@ -62,8 +80,47 @@ export async function login(req, res) {
     return res.status(400).send({ error: 'invald credentials' });
   }
 
-  const token = generateToken(user.username);
-  return res.status(201).json({ accessToken: token });
+  const accessToken = generateToken(user.username);
+  const refreshToken = generateRefreshToken(user.username);
+  const newRefresh = new Refresh({
+    token: refreshToken,
+  });
+
+  await newRefresh.save();
+
+  return res.status(201).json({ accessToken, refreshToken });
+}
+
+export async function refresh(req, res) {
+  const err = validationResult(req);
+
+  if (!err.isEmpty()) {
+    const formatedError = {};
+    err.array().forEach((e) => {
+      formatedError[e.path] = e.msg;
+    });
+
+    return res.status(400).send({ errors: formatedError });
+  }
+  const token = req.body.token;
+  if (!token) {
+    return res.status(401).send();
+  }
+  try {
+    const t = await Refresh.findOne({ token });
+    if (!t) {
+      return res.status(403).send();
+    }
+    jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+      if (err) return res.status(403).send();
+
+      const accessToken = generateToken(user.name);
+      res.json({ accessToken: accessToken });
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send(e);
+  }
 }
 
 export async function verifyToken(req, res) {
@@ -145,5 +202,30 @@ export async function verifyToken(req, res) {
         `);
   } catch (error) {
     res.status(500).send('Internal server error');
+  }
+}
+
+export async function logout(req, res) {
+  const err = validationResult(req);
+
+  if (!err.isEmpty()) {
+    const formatedError = {};
+    err.array().forEach((e) => {
+      formatedError[e.path] = e.msg;
+    });
+
+    return res.status(400).send({ errors: formatedError });
+  }
+  const token = req.body.token;
+
+  try {
+    const t = await Refresh.findOneAndDelete({ token });
+    if (!t) {
+      return res.status(404).send({ error: 'token not found' });
+    }
+
+    return res.status(204).send();
+  } catch (e) {
+    res.status(500).send(e);
   }
 }
