@@ -16,6 +16,9 @@
   "bugs": {
     "url": "https://github.com/Roman0290/BrainzAcademy-backend/issues"
   },
+  "engines": {
+    "node": ">=14.x"
+  },
   "type": "module",
   "homepage": "https://github.com/Roman0290/BrainzAcademy-backend#readme",
   "dependencies": {
