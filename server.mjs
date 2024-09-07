@@ -22,4 +22,4 @@ app.use(cors());
 
 app.use('/auth', authRouter);
 
-module.exports = app;
+export default app;
