@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export default async function sendPasswordResetLink(user) {
-  const resetLink = `http://localhost:3000/auth/reset-password?token=${user.resetPasswordToken}`;
+  const resetLink = `http://localhost:3000/reset-password?token=${user.resetPasswordToken}`;
   const msg = {
     to: user.email,
     from: `BrainzAcademy <${process.env.SENDGRID_SENDER_EMAIL}>`,
@@ -27,7 +27,7 @@ export default async function sendPasswordResetLink(user) {
       <hr style="border: none; border-top: 1px solid #eee;">
       <p style="font-size: 12px; color: #888;">
         Thank you,<br>
-        The Digital Idir Team
+        The BrainzAcademy Team
       </p>
     </div>
   </body>

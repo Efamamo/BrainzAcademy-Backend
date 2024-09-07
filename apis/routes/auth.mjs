@@ -2,6 +2,7 @@ import express from 'express';
 import {
   changePassword,
   forgotPassword,
+  getUserById,
   login,
   logout,
   refresh,
@@ -9,12 +10,19 @@ import {
   signup,
   updatedeProfile,
   verifyToken,
+  verify,
+  hadleChapa,
 } from '../controllers/auth_controller.mjs';
 import { check } from 'express-validator';
 import authenticateToken from '../../infrastructure/middlewares/authorize.mjs';
 export const authRouter = express.Router();
 
 authRouter.get('/verify/:token', verifyToken);
+authRouter.post(
+  '/verify',
+  check('token').notEmpty().withMessage('token is required'),
+  verify
+);
 authRouter.post(
   '/signup',
   [
@@ -86,3 +94,7 @@ authRouter.patch(
   check('newPassword').notEmpty().withMessage('newPassword cant be empty'),
   resetPassword
 );
+
+authRouter.get('/get-user', authenticateToken, getUserById);
+
+authRouter.get('/chapa', hadleChapa);
