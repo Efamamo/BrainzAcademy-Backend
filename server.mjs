@@ -17,9 +17,13 @@ db.once('open', () => {
 
 const app = express();
 
+app.get('/', (req, res) => {
+  res.send('Hello');
+});
+
 app.use(express.json());
 app.use(cors());
 
 app.use('/auth', authRouter);
 
-app.listen(4000);
+export default app;
