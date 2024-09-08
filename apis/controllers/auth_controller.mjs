@@ -107,6 +107,7 @@ export async function login(req, res) {
     await newRefresh.save();
     return res.status(201).json({ accessToken, refreshToken });
   } catch (e) {
+    console.log(e);
     res.status(500).json({ errors: { server: 'server error' } });
   }
 }
@@ -123,7 +124,6 @@ export async function verify(req, res) {
     return res.status(400).send({ errors: formatedError });
   }
   const token = req.body.token;
-  console.log(token);
   try {
     const t = await Refresh.findOne({ token });
     if (!t) {
@@ -467,7 +467,6 @@ export async function hadleChapa(req, res) {
     const result = await response.json();
 
     if (result.status === 'success') {
-     
       return res.redirect(result.data.checkout_url);
     } else {
       return res.status(500).json('server error');

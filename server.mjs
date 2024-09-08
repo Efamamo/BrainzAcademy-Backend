@@ -20,6 +20,6 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.use('/api/auth', authRouter);
+app.use('/auth', authRouter);
 
-export default app;
+app.listen(4000);
