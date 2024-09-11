@@ -26,4 +26,4 @@ app.use(cors());
 
 app.use('/auth', authRouter);
 
-app.listen(4000);
+app.listen(4000)

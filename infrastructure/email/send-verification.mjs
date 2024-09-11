@@ -5,7 +5,7 @@ dotenv.config();
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 async function sendVerification(user) {
-  const verificationUrl = `http://localhost:4000/auth/verify/${user.verificationToken}`;
+  const verificationUrl = `https://brainzacademy-backend-1.onrender.com/auth/verify/${user.verificationToken}`;
   const msg = {
     to: user.email,
     from: `BrainzAcademy <${process.env.SENDGRID_SENDER_EMAIL}>`,
